@@ -17,6 +17,7 @@ type CalculadoraInvoker struct {
 func New(h string, p int) CalculadoraInvoker {
 	ior := shared.IOR{Host: h, Port: p}
 	inv := CalculadoraInvoker{Ior: ior}
+	// Instantiate pool
 
 	return inv
 }
@@ -29,6 +30,17 @@ func (i CalculadoraInvoker) Invoke() {
 
 	// Create an instance of Calculadora - Static Instance
 	c := calculadora.Calculadora{}
+
+	// Create a pool of instances of Calculadora
+	// - How to select an instance (should we implement an extra algorithm?)
+	// - How to avoid sharing instances concurrently: PER REQUEST INSTANCE
+
+	/*
+		Implementation design
+		- CalculadoraPool struct
+			- find a free instance (using mutex) (get)
+			- release resource after use (put)
+	*/
 
 	for {
 		// Invoke SRH
@@ -46,6 +58,8 @@ func (i CalculadoraInvoker) Invoke() {
 		// Demultiplex request & invoke QoS Observer
 		qosObserver := qosobserver.QoSObserver{}
 		qosObserver.StartTime()
+
+		// Get instance from pool
 		switch r.Op {
 		case "Som":
 			rep = c.Som(_p1, _p2)
@@ -59,6 +73,7 @@ func (i CalculadoraInvoker) Invoke() {
 			log.Fatal("Invoker:: Operation '" + r.Op + "' is unknown:: ")
 		}
 		qosObserver.StopTime()
+		// Release instance (put back in pool)
 
 		// Prepare reply
 		var params []interface{}
