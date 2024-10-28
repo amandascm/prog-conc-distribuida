@@ -34,7 +34,7 @@ func (i CalculadoraInvoker) Invoke() {
 	// c := calculadora.Calculadora{ID: 0}
 
 	// Create a pool of instances of Calculadora
-	pool := calculadorapool.NewObjectPool(2)
+	pool := calculadorapool.NewObjectPool(100)
 
 	for {
 		// Invoke SRH

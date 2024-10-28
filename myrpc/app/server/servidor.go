@@ -1,7 +1,7 @@
 package main
 
 import (
-	"test/myrpc/distribution/invokers/calculadora"
+	calculadorainvoker "test/myrpc/distribution/invokers/calculadora"
 	namingproxy "test/myrpc/services/naming/proxy"
 	"test/shared"
 )

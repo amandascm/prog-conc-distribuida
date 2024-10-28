@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"test/myrpc/distribution/proxies/calculadora"
+	calculadoraproxy "test/myrpc/distribution/proxies/calculadora"
 	namingproxy "test/myrpc/services/naming/proxy"
 	"test/shared"
 	"time"
