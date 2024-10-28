@@ -90,7 +90,7 @@ func (crh *CRH) SendReceive(msgToServer []byte) []byte {
 					s = 1
 					break
 				} else {
-					if i == shared.MaxConnectionAttempts {
+					if i == shared.MaxConnectionAttempts-1 {
 						log.Fatal("CRH 0:: Number Max of attempts achieved...")
 					}
 				}
