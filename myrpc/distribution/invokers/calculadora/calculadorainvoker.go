@@ -2,10 +2,12 @@ package calculadorainvoker
 
 import (
 	"log"
-	"test/myrpc/app/businesses/calculadora"
+
+	// "test/myrpc/app/businesses/calculadora"
 	qosobserver "test/myrpc/distribution/interceptors/qos"
 	"test/myrpc/distribution/marshaller"
 	"test/myrpc/distribution/miop"
+	calculadorapool "test/myrpc/distribution/pool"
 	"test/myrpc/infrastructure/srh"
 	"test/shared"
 )
@@ -29,18 +31,10 @@ func (i CalculadoraInvoker) Invoke() {
 	var rep int
 
 	// Create an instance of Calculadora - Static Instance
-	c := calculadora.Calculadora{}
+	// c := calculadora.Calculadora{ID: 0}
 
 	// Create a pool of instances of Calculadora
-	// - How to select an instance (should we implement an extra algorithm?)
-	// - How to avoid sharing instances concurrently: PER REQUEST INSTANCE
-
-	/*
-		Implementation design
-		- CalculadoraPool struct
-			- find a free instance (using mutex) (get)
-			- release resource after use (put)
-	*/
+	pool := calculadorapool.NewObjectPool(2)
 
 	for {
 		// Invoke SRH
@@ -60,6 +54,8 @@ func (i CalculadoraInvoker) Invoke() {
 		qosObserver.StartTime()
 
 		// Get instance from pool
+		c := pool.Get()
+
 		switch r.Op {
 		case "Som":
 			rep = c.Som(_p1, _p2)
@@ -72,8 +68,10 @@ func (i CalculadoraInvoker) Invoke() {
 		default:
 			log.Fatal("Invoker:: Operation '" + r.Op + "' is unknown:: ")
 		}
-		qosObserver.StopTime()
 		// Release instance (put back in pool)
+		pool.Put(c)
+
+		qosObserver.StopTime()
 
 		// Prepare reply
 		var params []interface{}

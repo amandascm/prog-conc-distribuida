@@ -1,6 +1,8 @@
 package calculadora
 
-type Calculadora struct{}
+type Calculadora struct {
+	ID int
+}
 
 func (Calculadora) Som(p1, p2 int) int {
 	return p1 + p2
