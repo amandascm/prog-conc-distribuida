@@ -1,10 +1,16 @@
 package calculadora
 
+import (
+	"math/rand"
+	"time"
+)
+
 type Calculadora struct {
 	ID int
 }
 
 func (Calculadora) Som(p1, p2 int) int {
+	time.Sleep(time.Duration(rand.Intn(500)) * time.Millisecond)
 	return p1 + p2
 }
 

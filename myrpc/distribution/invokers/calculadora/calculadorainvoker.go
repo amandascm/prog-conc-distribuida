@@ -4,7 +4,7 @@ import (
 	"log"
 
 	// "test/myrpc/app/businesses/calculadora"
-	qosobserver "test/myrpc/distribution/interceptors/qos"
+
 	"test/myrpc/distribution/marshaller"
 	"test/myrpc/distribution/miop"
 	calculadorapool "test/myrpc/distribution/pool"
@@ -28,13 +28,9 @@ func (i CalculadoraInvoker) Invoke() {
 	s := srh.NewSRH(i.Ior.Host, i.Ior.Port)
 	m := marshaller.Marshaller{}
 	miopPacket := miop.Packet{}
-	var rep int
-
-	// Create an instance of Calculadora - Static Instance
-	// c := calculadora.Calculadora{ID: 0}
 
 	// Create a pool of instances of Calculadora
-	pool := calculadorapool.NewObjectPool(100)
+	pool := calculadorapool.NewObjectPool(10)
 
 	for {
 		// Invoke SRH
@@ -49,16 +45,16 @@ func (i CalculadoraInvoker) Invoke() {
 		_p1 := int(r.Params[0].(float64))
 		_p2 := int(r.Params[1].(float64))
 
-		// Demultiplex request & invoke QoS Observer
-		qosObserver := qosobserver.QoSObserver{}
-		qosObserver.StartTime()
-
 		// Get instance from pool
 		c := pool.Get()
+		var rep int
 
 		switch r.Op {
 		case "Som":
-			rep = c.Som(_p1, _p2)
+			go func() {
+				defer pool.Put(c)
+				c.Som(_p1, _p2)
+			}()
 		case "Dif":
 			rep = c.Dif(_p1, _p2)
 		case "Mul":
@@ -69,9 +65,6 @@ func (i CalculadoraInvoker) Invoke() {
 			log.Fatal("Invoker:: Operation '" + r.Op + "' is unknown:: ")
 		}
 		// Release instance (put back in pool)
-		pool.Put(c)
-
-		qosObserver.StopTime()
 
 		// Prepare reply
 		var params []interface{}
