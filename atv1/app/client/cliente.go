@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	calculadoraproxy "test/atv1/distribution/proxies/calculadora"
+	"strconv"
+	collectorproxy "test/atv1/distribution/proxies/collector"
 	namingproxy "test/atv1/services/naming/proxy"
 	"test/shared"
 	"time"
@@ -20,22 +21,22 @@ func Cliente() {
 
 	// Obtain proxies
 	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
-	calc := calculadoraproxy.New(naming.Find("Calculadora"))
+	collector := collectorproxy.New(naming.Find("Collector"))
 
-	// Chamada remota a Calculadora
-	fmt.Println(calc.Som(1, 2))
+	// Chamada remota ao Collector
+	collector.Log("log message")
 }
 
 func ClientePerf() {
 	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
-	calc := calculadoraproxy.New(naming.Find("Calculadora"))
+	collector := collectorproxy.New(naming.Find("Collector"))
 
 	for i := 0; i < shared.StatisticSample; i++ {
 		t1 := time.Now()
 		for j := 0; j < shared.SampleSize; j++ {
-			calc.Som(1, 2)
+			collector.Log("this is a log message " + strconv.FormatInt(time.Since(t1).Milliseconds(), 10))
 		}
-		fmt.Println(i, ";", time.Now().Sub(t1).Milliseconds())
+		fmt.Println(i, "sample;", time.Since(t1).Milliseconds())
 		time.Sleep(100 * time.Millisecond)
 	}
 	fmt.Println("Experiemnt finalised...")

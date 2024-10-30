@@ -1,36 +1,33 @@
-package calculadorainvoker
+package collectorinvoker
 
 import (
 	"log"
-
-	// "test/atv1/app/businesses/calculadora"
-
+	collectorpool "test/atv1/distribution/collectorpool"
 	"test/atv1/distribution/marshaller"
 	"test/atv1/distribution/miop"
-	calculadorapool "test/atv1/distribution/pool"
 	"test/atv1/infrastructure/srh"
 	"test/shared"
 )
 
-type CalculadoraInvoker struct {
+type CollectorInvoker struct {
 	Ior shared.IOR
 }
 
-func New(h string, p int) CalculadoraInvoker {
+func New(h string, p int) CollectorInvoker {
 	ior := shared.IOR{Host: h, Port: p}
-	inv := CalculadoraInvoker{Ior: ior}
+	inv := CollectorInvoker{Ior: ior}
 	// Instantiate pool
 
 	return inv
 }
 
-func (i CalculadoraInvoker) Invoke() {
+func (i CollectorInvoker) Invoke() {
 	s := srh.NewSRH(i.Ior.Host, i.Ior.Port)
 	m := marshaller.Marshaller{}
 	miopPacket := miop.Packet{}
 
-	// Create a pool of instances of Calculadora
-	pool := calculadorapool.NewObjectPool(10)
+	// Create a pool of instances of Collector
+	pool := collectorpool.NewObjectPool(10)
 
 	for {
 		// Invoke SRH
@@ -42,33 +39,30 @@ func (i CalculadoraInvoker) Invoke() {
 		// Extract request from publisher
 		r := miop.ExtractRequest(miopPacket)
 
-		_p1 := int(r.Params[0].(float64))
-		_p2 := int(r.Params[1].(float64))
+		_p1 := string(r.Params[0].(string))
 
 		// Get instance from pool
 		c := pool.Get()
-		var rep int
 
 		switch r.Op {
-		case "Som":
+		case "Log":
 			go func() {
+				// Release instance (put back in pool)
 				defer pool.Put(c)
-				c.Som(_p1, _p2)
+				c.Log(_p1)
 			}()
-		case "Dif":
-			rep = c.Dif(_p1, _p2)
-		case "Mul":
-			rep = c.Mul(_p1, _p2)
-		case "Div":
-			rep = c.Div(_p1, _p2)
+		case "Metric":
+			go func() {
+				// Release instance (put back in pool)
+				defer pool.Put(c)
+				c.Metric(_p1)
+			}()
 		default:
 			log.Fatal("Invoker:: Operation '" + r.Op + "' is unknown:: ")
 		}
-		// Release instance (put back in pool)
 
 		// Prepare reply
 		var params []interface{}
-		params = append(params, rep)
 
 		// Create miop reply packet
 		miop := miop.CreateReplyMIOP(params)
