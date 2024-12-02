@@ -32,9 +32,7 @@ func NewSRH(h string, p int) *SRH {
 	return r
 }
 
-/*
-func (srh *SRH) Receive() []byte {
-
+func (srh *SRH) Receive() ([]byte, net.Conn) {
 	srh.Connection, err = srh.Ln.Accept()
 	if err != nil {
 		log.Fatalf("SRH 1:: %s", err)
@@ -46,7 +44,7 @@ func (srh *SRH) Receive() []byte {
 	if err != nil {
 		if _, ok := err.(*net.OpError); ok {
 			srh.Connection.Close()
-			return nil
+			return nil, nil
 		} else {
 			log.Fatalf("SRH 2:: %s", err)
 		}
@@ -59,24 +57,24 @@ func (srh *SRH) Receive() []byte {
 	if err != nil {
 		if _, ok := err.(*net.OpError); ok {
 			srh.Connection.Close()
-			return nil
+			return nil, nil
 		} else {
 			log.Fatalf("SRH 3:: %s", err)
 		}
 	}
-	return msg
+	return msg, srh.Connection
 }
 
-func (srh *SRH) Send(msgToClient []byte) {
+func (srh *SRH) Send(msgToClient []byte, conn net.Conn) {
 
 	// 2: send message's size
 	size := make([]byte, 4)
 	l := uint32(len(msgToClient))
 	binary.LittleEndian.PutUint32(size, l)
-	_, err = srh.Connection.Write(size)
+	_, err = conn.Write(size)
 	if err != nil {
 		if _, ok := err.(*net.OpError); ok {
-			srh.Connection.Close()
+			conn.Close()
 			return
 		} else {
 			log.Fatalf("SRH 4:: %s", err)
@@ -84,77 +82,11 @@ func (srh *SRH) Send(msgToClient []byte) {
 	}
 
 	// 3: send message
-	_, err = srh.Connection.Write(msgToClient)
+	_, err = conn.Write(msgToClient)
 	if err != nil {
 		if _, ok := err.(*net.OpError); ok {
-			srh.Connection.Close()
-			srh.Ln.Close()
-			return
-		} else {
-			log.Fatalf("SRH 5:: %s", err)
-		}
-	}
-	//defer srh.Connection.Close()
-	//defer srh.Ln.Close()
-}
-*/
-
-func (srh *SRH) Receive() []byte {
-
-	srh.Connection, err = srh.Ln.Accept()
-	if err != nil {
-		log.Fatalf("SRH 1:: %s", err)
-	}
-
-	// 2: receive message's size
-	size := make([]byte, 4)
-	_, err = srh.Connection.Read(size)
-	if err != nil {
-		if _, ok := err.(*net.OpError); ok {
-			srh.Connection.Close()
-			return nil
-		} else {
-			log.Fatalf("SRH 2:: %s", err)
-		}
-	}
-	sizeInt := binary.LittleEndian.Uint32(size)
-
-	// 3: receive message
-	msg := make([]byte, sizeInt)
-	_, err = srh.Connection.Read(msg)
-	if err != nil {
-		if _, ok := err.(*net.OpError); ok {
-			srh.Connection.Close()
-			return nil
-		} else {
-			log.Fatalf("SRH 3:: %s", err)
-		}
-	}
-	return msg
-}
-
-func (srh *SRH) Send(msgToClient []byte) {
-
-	// 2: send message's size
-	size := make([]byte, 4)
-	l := uint32(len(msgToClient))
-	binary.LittleEndian.PutUint32(size, l)
-	_, err = srh.Connection.Write(size)
-	if err != nil {
-		if _, ok := err.(*net.OpError); ok {
-			srh.Connection.Close()
-			return
-		} else {
-			log.Fatalf("SRH 4:: %s", err)
-		}
-	}
-
-	// 3: send message
-	_, err = srh.Connection.Write(msgToClient)
-	if err != nil {
-		if _, ok := err.(*net.OpError); ok {
-			srh.Connection.Close()
-			srh.Ln.Close()
+			conn.Close()
+			// srh.Ln.Close()
 			return
 		} else {
 			log.Fatalf("SRH 5:: %s", err)
