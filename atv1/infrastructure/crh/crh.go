@@ -9,8 +9,8 @@ import (
 )
 
 type CRH struct {
-	Host       string
-	Port       int
+	Host string
+	Port int
 }
 
 func NewCRH(h string, p int) *CRH {

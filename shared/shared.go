@@ -17,7 +17,7 @@ const MQTTReply = "reply"
 
 // Other configurations
 const SumTime = 1000
-const PoolSize = 5
+const PoolSize = 50
 const StatisticSample = 1
 const SampleSize = 500
 const CalculatorPort = 4040
