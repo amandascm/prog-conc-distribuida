@@ -1,4 +1,4 @@
-package collectorproxy
+package calculatorproxy
 
 import (
 	"test/atv1/distribution/core"
@@ -6,34 +6,17 @@ import (
 	"test/shared"
 )
 
-type CollectorProxy struct {
+type CalculatorProxy struct {
 	Ior   shared.IOR
 	_Core core.Core
 }
 
-func New(i shared.IOR) CollectorProxy {
-	r := CollectorProxy{Ior: i}
+func New(i shared.IOR) CalculatorProxy {
+	r := CalculatorProxy{Ior: i}
 	return r
 }
 
-func (p *CollectorProxy) Log(message string) {
-
-	// 1. Configure input parameters
-	params := make([]interface{}, 1)
-	params[0] = message
-
-	// Configure remote request
-	req := shared.Request{Op: "Log", Params: params}
-
-	// Prepare invocation to Requestor
-	inv := shared.Invocation{Ior: p.Ior, Request: req}
-
-	// 3. Invoke Requestor
-	requestor := requestor.Requestor{}
-	requestor.Invoke(inv)
-}
-
-func (p *CollectorProxy) Som(p1, p2 int) int {
+func (p *CalculatorProxy) Som(p1, p2 int) int {
 
 	// 1. Configure input parameters
 	params := make([]interface{}, 2)
@@ -54,7 +37,7 @@ func (p *CollectorProxy) Som(p1, p2 int) int {
 	return int(r.Rep.Result[0].(float64))
 }
 
-func (h *CollectorProxy) Dif(p1, p2 int) int {
+func (h *CalculatorProxy) Dif(p1, p2 int) int {
 
 	// 1. Configure input parameters
 	params := make([]interface{}, 2)
@@ -75,7 +58,7 @@ func (h *CollectorProxy) Dif(p1, p2 int) int {
 	return int(r.Rep.Result[0].(float64)) // TODO
 }
 
-func (h *CollectorProxy) Mul(p1, p2 int) int {
+func (h *CalculatorProxy) Mul(p1, p2 int) int {
 
 	// 1. Configure input parameters
 	params := make([]interface{}, 2)
@@ -96,7 +79,7 @@ func (h *CollectorProxy) Mul(p1, p2 int) int {
 	return int(r.Rep.Result[0].(float64)) // TODO
 }
 
-func (h *CollectorProxy) Div(p1, p2 int) int {
+func (h *CalculatorProxy) Div(p1, p2 int) int {
 
 	// 1. Configure input parameters
 	params := make([]interface{}, 2)

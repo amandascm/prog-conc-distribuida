@@ -1,7 +1,7 @@
 package main
 
 import (
-	collectorinvoker "test/atv1/distribution/invokers/collectorinvoker"
+	calculatorinvoker "test/atv1/distribution/invokers/calculatorinvoker"
 	namingproxy "test/atv1/services/naming/proxy"
 	"test/shared"
 )
@@ -11,11 +11,11 @@ func main() {
 	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
 
 	// Create instance of invokers
-	collectorInv := collectorinvoker.New(shared.LocalHost, shared.CollectorPort)
+	calculatorInv := calculatorinvoker.New(shared.LocalHost, shared.CalculatorPort)
 
 	// Register services in Naming
-	naming.Bind("Collector", shared.NewIOR(collectorInv.Ior.Host, collectorInv.Ior.Port))
+	naming.Bind("Calculator", shared.NewIOR(calculatorInv.Ior.Host, calculatorInv.Ior.Port))
 
 	// Invoke services
-	collectorInv.Invoke()
+	calculatorInv.Invoke()
 }

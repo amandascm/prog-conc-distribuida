@@ -20,7 +20,6 @@ const SumTime = 1000
 const PoolSize = 50
 const StatisticSample = 1
 const SampleSize = 500
-const CalculatorPort = 4040
 const GrpcPort = 5050
 const NAMING_PORT = 1414
 const MIOP_REQUEST = 1
@@ -36,7 +35,7 @@ const HeadersExchange = "headers_exchange"
 const RoutingKey = "routing_key"
 
 const NamingPort = 1313
-const CollectorPort = 1314
+const CalculatorPort = 1314
 const FibonacciPort = 1315
 const MessagingPort = 1316
 const LocalHost = "localhost"

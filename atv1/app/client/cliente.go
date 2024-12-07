@@ -5,14 +5,14 @@ import (
 	"log"
 	"os"
 	"sync"
-	collectorproxy "test/atv1/distribution/proxies/collector"
+	calculatorproxy "test/atv1/distribution/proxies/calculatorproxy"
 	namingproxy "test/atv1/services/naming/proxy"
 	"test/shared"
 	"time"
 )
 
 func main() {
-	Cliente()
+	ClientePerf()
 }
 
 func Cliente() {
@@ -22,17 +22,17 @@ func Cliente() {
 
 	// Obtain proxies
 	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
-	collector := collectorproxy.New(naming.Find("Collector"))
+	calculator := calculatorproxy.New(naming.Find("Calculator"))
 
-	// Chamada remota ao Collector
-	collector.Log("log message")
+	// Chamada remota ao calculator
+	calculator.Som(2, 2)
 }
 
-func worker(reqsChan chan [2]int, collector collectorproxy.CollectorProxy, wg *sync.WaitGroup) {
+func worker(reqsChan chan [2]int, calculator calculatorproxy.CalculatorProxy, wg *sync.WaitGroup) {
 	for args := range reqsChan {
 		wg.Add(1)
 		log.Println("Sending request with", args[0], args[1])
-		response := collector.Som(args[0], args[1])
+		response := calculator.Som(args[0], args[1])
 		log.Println("Received response for request", args[0], args[1], response)
 		wg.Done()
 	}
@@ -40,14 +40,14 @@ func worker(reqsChan chan [2]int, collector collectorproxy.CollectorProxy, wg *s
 
 func ClientePerf() {
 	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
-	collector := collectorproxy.New(naming.Find("Collector"))
+	calculator := calculatorproxy.New(naming.Find("Calculator"))
 
 	lCh := make(chan [2]int)
 	wg := new(sync.WaitGroup)
 
 	// We always batch send twice the pool size of requests
 	for i := 0; i < shared.PoolSize * 2; i++ {
-		go worker(lCh, collector, wg)
+		go worker(lCh, calculator, wg)
 	}
 
 	for i := 0; i < shared.StatisticSample; i++ {

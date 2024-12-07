@@ -1,28 +1,28 @@
-package collectorinvoker
+package calculatorinvoker
 
 import (
 	"log"
 	"net"
-	collectorpool "test/atv1/distribution/collectorpool"
+	calculatorpool "test/atv1/distribution/calculatorpool"
 	"test/atv1/distribution/marshaller"
 	"test/atv1/distribution/miop"
 	"test/atv1/infrastructure/srh"
 	"test/shared"
 )
 
-type CollectorInvoker struct {
+type CalculatorInvoker struct {
 	Ior shared.IOR
-	pool collectorpool.CollectorPool
+	pool calculatorpool.CalculatorPool
 }
 
-func New(h string, p int) CollectorInvoker {
+func New(h string, p int) CalculatorInvoker {
 	ior := shared.IOR{Host: h, Port: p}
-	pool := collectorpool.NewObjectPool(shared.PoolSize)
-	inv := CollectorInvoker{Ior: ior, pool: *pool}
+	pool := calculatorpool.NewObjectPool(shared.PoolSize)
+	inv := CalculatorInvoker{Ior: ior, pool: *pool}
 	return inv
 }
 
-func (i CollectorInvoker) Invoke() {
+func (i CalculatorInvoker) Invoke() {
 	s := srh.NewSRH(i.Ior.Host, i.Ior.Port)
 	m := marshaller.Marshaller{}
 	miopPacket := miop.Packet{}
