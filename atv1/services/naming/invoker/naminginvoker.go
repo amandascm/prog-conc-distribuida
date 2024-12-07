@@ -66,6 +66,6 @@ func (i Invoker) Invoke() {
 		b = m.Marshall(miop)
 
 		// Send marshalled packet
-		s.Send(b, conn)
+		s.Send(conn, b)
 	}
 }

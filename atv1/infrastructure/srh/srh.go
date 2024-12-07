@@ -63,7 +63,7 @@ func (srh *SRH) Receive() ([]byte, net.Conn) {
 	return msg, connection
 }
 
-func (srh *SRH) Send(msgToClient []byte, conn net.Conn) {
+func (srh *SRH) Send(conn net.Conn, msgToClient []byte) {
 
 	// 2: send message's size
 	size := make([]byte, 4)
