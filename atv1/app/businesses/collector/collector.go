@@ -3,11 +3,17 @@ package collector
 import (
 	"fmt"
 	"math/rand"
+	"test/shared"
 	"time"
 )
 
 type Collector struct {
 	ID int
+}
+
+func (Collector) Som(a, b float64) float64 {
+	time.Sleep(time.Duration(shared.SumTime * time.Millisecond))
+	return a + b
 }
 
 func (Collector) Log(message string) {

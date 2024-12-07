@@ -8,7 +8,6 @@ import (
 	"test/atv1/distribution/miop"
 	"test/atv1/infrastructure/srh"
 	"test/shared"
-	"time"
 )
 
 type CollectorInvoker struct {
@@ -50,8 +49,7 @@ func (i CollectorInvoker) Invoke() {
 
 			switch r.Op {
 			case "Som":
-				params = append(params, _p1+_p2)
-				time.Sleep(time.Duration(shared.SumTime * time.Millisecond))
+				params = append(params, c.Som(_p1, _p2))
 				i.pool.Put(c)
 			default:
 				log.Fatal("Invoker:: Operation '" + r.Op + "' is unknown:: ")
