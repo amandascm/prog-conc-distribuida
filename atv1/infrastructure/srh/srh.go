@@ -10,7 +10,6 @@ import (
 type SRH struct {
 	Host       string
 	Port       int
-	Connection net.Conn
 	Ln         net.Listener
 }
 
@@ -22,7 +21,6 @@ func NewSRH(h string, p int) *SRH {
 
 	r.Host = h
 	r.Port = p
-	r.Connection = nil
 	// 1: create listener & accept connection
 	r.Ln, err = net.Listen("tcp", h+":"+strconv.Itoa(p))
 	if err != nil {
@@ -33,17 +31,17 @@ func NewSRH(h string, p int) *SRH {
 }
 
 func (srh *SRH) Receive() ([]byte, net.Conn) {
-	srh.Connection, err = srh.Ln.Accept()
+	connection, err := srh.Ln.Accept()
 	if err != nil {
 		log.Fatalf("SRH 1:: %s", err)
 	}
 
 	// 2: receive message's size
 	size := make([]byte, 4)
-	_, err = srh.Connection.Read(size)
+	_, err = connection.Read(size)
 	if err != nil {
 		if _, ok := err.(*net.OpError); ok {
-			srh.Connection.Close()
+			connection.Close()
 			return nil, nil
 		} else {
 			log.Fatalf("SRH 2:: %s", err)
@@ -53,16 +51,16 @@ func (srh *SRH) Receive() ([]byte, net.Conn) {
 
 	// 3: receive message
 	msg := make([]byte, sizeInt)
-	_, err = srh.Connection.Read(msg)
+	_, err = connection.Read(msg)
 	if err != nil {
 		if _, ok := err.(*net.OpError); ok {
-			srh.Connection.Close()
+			connection.Close()
 			return nil, nil
 		} else {
 			log.Fatalf("SRH 3:: %s", err)
 		}
 	}
-	return msg, srh.Connection
+	return msg, connection
 }
 
 func (srh *SRH) Send(msgToClient []byte, conn net.Conn) {
@@ -92,6 +90,4 @@ func (srh *SRH) Send(msgToClient []byte, conn net.Conn) {
 			log.Fatalf("SRH 5:: %s", err)
 		}
 	}
-	//defer srh.Connection.Close()
-	//defer srh.Ln.Close()
 }

@@ -30,7 +30,7 @@ func (i Invoker) Invoke() {
 
 	for {
 		// Invoke SRH
-		b := s.Receive()
+		b, conn := s.Receive()
 
 		// Unmarshall miop packet
 		miopPacket = m.Unmarshall(b)
@@ -66,6 +66,6 @@ func (i Invoker) Invoke() {
 		b = m.Marshall(miop)
 
 		// Send marshalled packet
-		s.Send(b)
+		s.Send(b, conn)
 	}
 }
