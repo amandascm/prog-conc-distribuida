@@ -32,8 +32,9 @@ func (i CalculatorInvoker) Invoke(b []byte) []byte {
 	_p1 := float64(r.Params[0].(float64))
 	_p2 := float64(r.Params[1].(float64))
 
-	// Get instance from pool
+	// Get instance from the Lifecycle Manager
 	c := i.lm.GetObject()
+	defer i.lm.ReleaseObject(c)
 
 	// Prepare reply
 	var params []interface{}
@@ -41,7 +42,12 @@ func (i CalculatorInvoker) Invoke(b []byte) []byte {
 	switch r.Op {
 	case "Som":
 		params = append(params, c.Som(_p1, _p2))
-		i.lm.ReleaseObject(c)
+	case "Dif":
+		params = append(params, c.Dif(_p1, _p2))
+	case "Mul":
+		params = append(params, c.Mul(_p1, _p2))
+	case "Div":
+		params = append(params, c.Div(_p1, _p2))
 	default:
 		log.Fatal("Invoker:: Operation '" + r.Op + "' is unknown:: ")
 	}
