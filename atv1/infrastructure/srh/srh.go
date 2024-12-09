@@ -13,7 +13,7 @@ type SRH struct {
 	Host    string
 	Port    int
 	Ln      net.Listener
-	Invoker calculatorinvoker.CalculatorInvoker
+	invoker *calculatorinvoker.CalculatorInvoker
 }
 
 // var conn net.Conn
@@ -30,7 +30,21 @@ func NewSRH(h string, p int) *SRH {
 		log.Fatalf("SRH 0:: %s", err)
 	}
 
-	r.Invoker = calculatorinvoker.New(h, p)
+	return r
+}
+
+func NewWithInvoker(h string, p int, invoker *calculatorinvoker.CalculatorInvoker) *SRH {
+	r := new(SRH)
+
+	r.Host = h
+	r.Port = p
+	// 1: create listener & accept connection
+	r.Ln, err = net.Listen("tcp", h+":"+strconv.Itoa(p))
+	if err != nil {
+		log.Fatalf("SRH 0:: %s", err)
+	}
+
+	r.invoker = invoker
 
 	return r
 }
@@ -39,7 +53,7 @@ func (srh *SRH) Serve() {
 	for {
 		msg, conn := srh.Receive()
 		go func (conn net.Conn, msg []byte) {
-			response := srh.Invoker.Invoke(msg)
+			response := srh.invoker.Invoke(msg)
 			srh.Send(conn, response)
 		}(conn, msg)
 	}
