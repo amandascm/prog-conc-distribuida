@@ -6,14 +6,14 @@ import (
 	"net"
 	"strconv"
 
-	"test/atv1/distribution/invokers/calculatorinvoker"
+	"test/atv1/distribution/invokers"
 )
 
 type SRH struct {
 	Host    string
 	Port    int
 	Ln      net.Listener
-	invoker *calculatorinvoker.CalculatorInvoker
+	invoker invokers.Invoker
 }
 
 // var conn net.Conn
@@ -33,7 +33,7 @@ func NewSRH(h string, p int) *SRH {
 	return r
 }
 
-func NewWithInvoker(h string, p int, invoker *calculatorinvoker.CalculatorInvoker) *SRH {
+func NewWithInvoker(h string, p int, invoker invokers.Invoker) *SRH {
 	r := new(SRH)
 
 	r.Host = h
@@ -52,7 +52,7 @@ func NewWithInvoker(h string, p int, invoker *calculatorinvoker.CalculatorInvoke
 func (srh *SRH) Serve() {
 	for {
 		msg, conn := srh.Receive()
-		go func (conn net.Conn, msg []byte) {
+		go func(conn net.Conn, msg []byte) {
 			response := srh.invoker.Invoke(msg)
 			srh.Send(conn, response)
 		}(conn, msg)

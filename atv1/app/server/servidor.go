@@ -11,14 +11,14 @@ func main() {
 	// Obtain proxies
 	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
 
-	// Create invoker instance
-	invoker := calculatorinvoker.New(shared.LocalHost, shared.CalculatorPort)
+	// Create calculatorInvoker instance
+	calculatorInvoker := calculatorinvoker.New(shared.LocalHost, shared.CalculatorPort)
 
 	// Create SRH instance
-	srh := srh.NewWithInvoker(shared.LocalHost, shared.CalculatorPort, &invoker)
+	srh := srh.NewWithInvoker(shared.LocalHost, shared.CalculatorPort, &calculatorInvoker)
 
 	// Register services in Naming
-	naming.Bind("Calculator", shared.NewIOR(invoker.Ior.Host, invoker.Ior.Port))
+	naming.Bind("Calculator", shared.NewIOR(calculatorInvoker.Ior.Host, calculatorInvoker.Ior.Port))
 
 	srh.Serve()
 }
