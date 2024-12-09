@@ -3,7 +3,7 @@ package calculatorinvoker
 import (
 	"log"
 	"net"
-	calculatorpool "test/atv1/distribution/calculatorpool"
+	lifecyclemanager "test/atv1/distribution/lifecyclemanager"
 	"test/atv1/distribution/marshaller"
 	"test/atv1/distribution/miop"
 	"test/atv1/infrastructure/srh"
@@ -12,13 +12,13 @@ import (
 
 type CalculatorInvoker struct {
 	Ior shared.IOR
-	pool calculatorpool.CalculatorPool
+	lm  lifecyclemanager.LifecycleManager
 }
 
 func New(h string, p int) CalculatorInvoker {
 	ior := shared.IOR{Host: h, Port: p}
-	pool := calculatorpool.NewObjectPool(shared.PoolSize)
-	inv := CalculatorInvoker{Ior: ior, pool: *pool}
+	lm := lifecyclemanager.NewLifecycleManager(shared.PoolSize)
+	inv := CalculatorInvoker{Ior: ior, lm: *lm}
 	return inv
 }
 
@@ -26,6 +26,7 @@ func (i CalculatorInvoker) Invoke() {
 	s := srh.NewSRH(i.Ior.Host, i.Ior.Port)
 	m := marshaller.Marshaller{}
 	miopPacket := miop.Packet{}
+	defer i.lm.Destroy()
 
 	for {
 		// Invoke SRH
@@ -42,7 +43,7 @@ func (i CalculatorInvoker) Invoke() {
 			_p2 := float64(r.Params[1].(float64))
 
 			// Get instance from pool
-			c := i.pool.Get()
+			c := i.lm.GetObject()
 
 			// Prepare reply
 			var params []interface{}
@@ -50,7 +51,7 @@ func (i CalculatorInvoker) Invoke() {
 			switch r.Op {
 			case "Som":
 				params = append(params, c.Som(_p1, _p2))
-				i.pool.Put(c)
+				i.lm.ReleaseObject(c)
 			default:
 				log.Fatal("Invoker:: Operation '" + r.Op + "' is unknown:: ")
 			}

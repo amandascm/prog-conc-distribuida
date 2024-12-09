@@ -6,7 +6,7 @@ import (
 )
 
 type CalculatorPool struct {
-	pool chan *calculator.Calculator
+	Pool chan *calculator.Calculator
 }
 
 func NewObjectPool(size int) *CalculatorPool {
@@ -15,17 +15,17 @@ func NewObjectPool(size int) *CalculatorPool {
 		pool <- &calculator.Calculator{ID: i}
 	}
 	return &CalculatorPool{
-		pool: pool,
+		Pool: pool,
 	}
 }
 
 func (calcPool *CalculatorPool) Get() *calculator.Calculator {
-	obj := <-calcPool.pool
+	obj := <-calcPool.Pool
 	fmt.Printf("Got object available at channel with ID: %d\n", obj.ID)
 	return obj
 }
 
 func (calcPool *CalculatorPool) Put(obj *calculator.Calculator) {
 	fmt.Printf("Returned to pool object with ID: %d\n", obj.ID)
-	calcPool.pool <- obj
+	calcPool.Pool <- obj
 }
