@@ -2,11 +2,9 @@ package calculatorinvoker
 
 import (
 	"log"
-	"net"
 	lifecyclemanager "test/atv1/distribution/lifecyclemanager"
 	"test/atv1/distribution/marshaller"
 	"test/atv1/distribution/miop"
-	"test/atv1/infrastructure/srh"
 	"test/shared"
 )
 
@@ -22,48 +20,40 @@ func New(h string, p int) CalculatorInvoker {
 	return inv
 }
 
-func (i CalculatorInvoker) Invoke() {
-	s := srh.NewSRH(i.Ior.Host, i.Ior.Port)
+func (i CalculatorInvoker) Invoke(b []byte) []byte {
 	m := marshaller.Marshaller{}
 	miopPacket := miop.Packet{}
-	defer i.lm.Destroy()
 
-	for {
-		// Invoke SRH
-		b, conn := s.Receive()
+	// defer i.lm.Destroy()
 
-		go func(conn net.Conn) {
-			// Unmarshall miop packet
-			miopPacket = m.Unmarshall(b)
+	// Unmarshall miop packet
+	miopPacket = m.Unmarshall(b)
 
-			// Extract request from publisher
-			r := miop.ExtractRequest(miopPacket)
+	// Extract request from publisher
+	r := miop.ExtractRequest(miopPacket)
 
-			_p1 := float64(r.Params[0].(float64))
-			_p2 := float64(r.Params[1].(float64))
+	_p1 := float64(r.Params[0].(float64))
+	_p2 := float64(r.Params[1].(float64))
 
-			// Get instance from pool
-			c := i.lm.GetObject()
+	// Get instance from pool
+	c := i.lm.GetObject()
 
-			// Prepare reply
-			var params []interface{}
+	// Prepare reply
+	var params []interface{}
 
-			switch r.Op {
-			case "Som":
-				params = append(params, c.Som(_p1, _p2))
-				i.lm.ReleaseObject(c)
-			default:
-				log.Fatal("Invoker:: Operation '" + r.Op + "' is unknown:: ")
-			}
-
-			// Create miop reply packet
-			miop := miop.CreateReplyMIOP(params)
-
-			// Marshall miop packet
-			b = m.Marshall(miop)
-
-			// Send marshalled packet
-			s.Send(conn, b)
-		}(conn)
+	switch r.Op {
+	case "Som":
+		params = append(params, c.Som(_p1, _p2))
+		i.lm.ReleaseObject(c)
+	default:
+		log.Fatal("Invoker:: Operation '" + r.Op + "' is unknown:: ")
 	}
+
+	// Create miop reply packet
+	miop := miop.CreateReplyMIOP(params)
+
+	// Marshall miop packet
+	b = m.Marshall(miop)
+
+	return b
 }

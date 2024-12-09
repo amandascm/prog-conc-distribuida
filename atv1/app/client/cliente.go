@@ -46,7 +46,7 @@ func ClientePerf() {
 	wg := new(sync.WaitGroup)
 
 	// We always batch send twice the pool size of requests
-	for i := 0; i < shared.PoolSize * 2; i++ {
+	for i := 0; i < shared.PoolSize*2; i++ {
 		go worker(lCh, calculator, wg)
 	}
 

@@ -5,12 +5,15 @@ import (
 	"log"
 	"net"
 	"strconv"
+
+	"test/atv1/distribution/invokers/calculatorinvoker"
 )
 
 type SRH struct {
-	Host       string
-	Port       int
-	Ln         net.Listener
+	Host    string
+	Port    int
+	Ln      net.Listener
+	Invoker calculatorinvoker.CalculatorInvoker
 }
 
 // var conn net.Conn
@@ -27,7 +30,19 @@ func NewSRH(h string, p int) *SRH {
 		log.Fatalf("SRH 0:: %s", err)
 	}
 
+	r.Invoker = calculatorinvoker.New(h, p)
+
 	return r
+}
+
+func (srh *SRH) Serve() {
+	for {
+		msg, conn := srh.Receive()
+		go func (conn net.Conn, msg []byte) {
+			response := srh.Invoker.Invoke(msg)
+			srh.Send(conn, response)
+		}(conn, msg)
+	}
 }
 
 func (srh *SRH) Receive() ([]byte, net.Conn) {
