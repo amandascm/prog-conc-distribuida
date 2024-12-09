@@ -13,18 +13,15 @@ type CalculatorInvoker struct {
 	lm  lifecyclemanager.LifecycleManager
 }
 
-func New(h string, p int) CalculatorInvoker {
+func New(h string, p int, lm lifecyclemanager.LifecycleManager) CalculatorInvoker {
 	ior := shared.IOR{Host: h, Port: p}
-	lm := lifecyclemanager.NewLifecycleManager(shared.PoolSize)
-	inv := CalculatorInvoker{Ior: ior, lm: *lm}
+	inv := CalculatorInvoker{Ior: ior, lm: lm}
 	return inv
 }
 
 func (i CalculatorInvoker) Invoke(b []byte) []byte {
 	m := marshaller.Marshaller{}
 	miopPacket := miop.Packet{}
-
-	// defer i.lm.Destroy()
 
 	// Unmarshall miop packet
 	miopPacket = m.Unmarshall(b)
