@@ -17,10 +17,10 @@ const MQTTReply = "reply"
 
 // Other configurations
 const SumTime = 1000
-const PoolSize = 50
+const PoolSize = 150
 const LifecycleManagementStrategy = "pooling"
 const StatisticSample = 1
-const SampleSize = 500
+const SampleSize = 100
 const GrpcPort = 5050
 const NAMING_PORT = 1414
 const MIOP_REQUEST = 1
