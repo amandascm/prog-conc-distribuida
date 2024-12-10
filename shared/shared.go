@@ -18,6 +18,7 @@ const MQTTReply = "reply"
 // Other configurations
 const SumTime = 1000
 const PoolSize = 50
+const LifecycleManagementStrategy = "pooling"
 const StatisticSample = 1
 const SampleSize = 500
 const GrpcPort = 5050

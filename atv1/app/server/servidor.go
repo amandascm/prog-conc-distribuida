@@ -2,7 +2,7 @@ package main
 
 import (
 	"test/atv1/distribution/invokers/calculatorinvoker"
-	"test/atv1/distribution/lifecyclemanager"
+	lifecycle "test/atv1/distribution/lifecycle"
 	"test/atv1/infrastructure/srh"
 	namingproxy "test/atv1/services/naming/proxy"
 	"test/shared"
@@ -13,9 +13,9 @@ func main() {
 	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
 
 	// Creating the lifecycle manager
-	lifecycleManager := lifecyclemanager.NewLifecycleManager(shared.PoolSize)
-	defer lifecycleManager.Destroy()
-	
+	lifecycleManager := lifecycle.NewLifecycleManager()
+	defer lifecycleManager.Finish()
+
 	// Create calculatorInvoker instance
 	calculatorInvoker := calculatorinvoker.New(shared.LocalHost, shared.CalculatorPort, *lifecycleManager)
 

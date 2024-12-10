@@ -2,7 +2,7 @@ package calculatorinvoker
 
 import (
 	"log"
-	lifecyclemanager "test/atv1/distribution/lifecyclemanager"
+	lifecycle "test/atv1/distribution/lifecycle"
 	"test/atv1/distribution/marshaller"
 	"test/atv1/distribution/miop"
 	"test/shared"
@@ -10,10 +10,10 @@ import (
 
 type CalculatorInvoker struct {
 	Ior shared.IOR
-	lm  lifecyclemanager.LifecycleManager
+	lm  lifecycle.LifecycleManager
 }
 
-func New(h string, p int, lm lifecyclemanager.LifecycleManager) CalculatorInvoker {
+func New(h string, p int, lm lifecycle.LifecycleManager) CalculatorInvoker {
 	ior := shared.IOR{Host: h, Port: p}
 	inv := CalculatorInvoker{Ior: ior, lm: lm}
 	return inv
@@ -34,7 +34,7 @@ func (i CalculatorInvoker) Invoke(b []byte) []byte {
 
 	// Get instance from the Lifecycle Manager
 	c := i.lm.GetObject()
-	defer i.lm.ReleaseObject(c)
+	defer i.lm.ReleaseObject(&c)
 
 	// Prepare reply
 	var params []interface{}
